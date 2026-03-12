@@ -28,7 +28,7 @@ El primer paso es un escaneo completo con **Nmap** para identificar puertos abie
 nmap -A -sV -sC <IP>
 ```
 
-> 📸 ![](nmap.png)
+> 📸 ![](fotos/nmap.png)
 
 El escaneo revela varios puertos abiertos, entre ellos el **21 (FTP)**, **22 (SSH)** y **80 (HTTP)**, que serán relevantes más adelante.
 
@@ -46,7 +46,7 @@ Al acceder a la web, se observa que la palabra **"arrow"** aparece en negrita �
 gobuster dir -u http://<IP>/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
 ```
 
-> 📸 ![](gobuster.png)
+> 📸 ![](fotos/gobuster.png)
 
 Se descubre el directorio **`/island`**.
 
@@ -62,7 +62,7 @@ feroxbuster -u http://<IP>/ -w /usr/share/wordlists/common.txt
 feroxbuster -u http://<IP>/ -w /usr/share/wordlists/big.txt
 ```
 
-> 📸 ![](feroxbuster_common.png]] ![[feroxbuster_big.png)
+> 📸 ![](fotos/feroxbuster_common.png) ![](fotos/feroxbuster_big.png)
 
 ### FFUF — Fuzzing de extensiones
 
@@ -70,7 +70,7 @@ feroxbuster -u http://<IP>/ -w /usr/share/wordlists/big.txt
 ffuf -u http://<IP>/island/FUZZ -w /usr/share/wordlists/...
 ```
 
-> 📸 ![](ffuf.png)
+> 📸 ![](fotos/ffuf.png)
 
 ### Análisis de resultados
 
@@ -87,7 +87,7 @@ Se lanza un segundo Gobuster sobre `/island`:
 gobuster dir -u http://<IP>/island/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
 ```
 
-> 📸 ![](gobuster_small.png)
+> 📸 ![](fotos/gobuster_small.png)
 
 Se descubre **`/island/2100`** — una página con un vídeo embebido. Al revisar el código fuente se encuentra la siguiente pista:
 
@@ -99,11 +99,11 @@ Esto indica que hay un archivo con extensión `.ticket` en algún subdirectorio.
 gobuster dir -u http://<IP>/island/2100/ -x ticket -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
 ```
 
-> 📸 ![](gobuster_medium.png)
+> 📸 ![](fotos/gobuster_medium.png)
 
 Se descubre el archivo final, que contiene una cadena codificada.
 
-> 📸 ![](pass_web.png)
+> 📸 ![](fotos/pass_web.png)
 
 ### Decodificación
 
@@ -128,7 +128,7 @@ Con las credenciales obtenidas se accede al servidor FTP (puerto 21):
 ftp <IP>
 ```
 
-> 📸 ![](ssh_vigilante.png)
+> 📸 ![](fotos/ssh_vigilante.png)
 
 Dentro del servidor se descargan los siguientes archivos:
 
@@ -154,7 +154,7 @@ Las imágenes descargadas pueden contener datos ocultos. Se utiliza **stegseek**
 stegseek aa.jpg /usr/share/wordlists/rockyou.txt
 ```
 
-> 📸 ![](stegseek.png)
+> 📸 ![](fotos/stegseek.png)
 
 Los datos no estaban cifrados, por lo que la extracción no requirió contraseña. El resultado es un archivo comprimido: **`aa.jpg.out`**.
 
@@ -179,7 +179,7 @@ Con la contraseña extraída del archivo `shado`, se accede al sistema como el u
 ssh slade@<IP>
 ```
 
-> 📸 ![](ssh_slade.png)
+> 📸 ![](fotos/ssh_slade.png)
 
 Una vez dentro, se obtiene la primera flag:
 
@@ -208,7 +208,7 @@ El resultado muestra que `slade` puede ejecutar **`pkexec`** como root.
 
 Se consulta [GTFOBins](https://gtfobins.github.io/gtfobins/pkexec/) para obtener el vector de escalada con `pkexec`:
 
-> 📸 ![](GTFObins.png)
+> 📸 ![](fotos/GTFObins.png)
 
 ```bash
 sudo pkexec /bin/bash
@@ -221,7 +221,7 @@ ls -la /root
 cat /root/root.txt
 ```
 
-> 📸 ![](flag_root.png)
+> 📸 ![](fotos/flag_root.png)
 
 ✅ **Flag de root capturada.**
 
